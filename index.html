@@ -532,6 +532,8 @@
 <button id="da3wa-music" type="button" aria-label="الموسيقى" dir="rtl" style="position:fixed;inset-inline-start:16px;bottom:16px;z-index:60;width:50px;height:50px;border-radius:50%;border:none;cursor:pointer;background:rgba(255,255,255,.92);box-shadow:0 8px 22px rgba(0,0,0,.22);font-size:22px;display:grid;place-items:center;line-height:1">🎵</button>
 <script>(function(){
   var btn=document.getElementById('da3wa-music'); if(!btn) return;
+  var musicVideoId=window.__INVITE__&&window.__INVITE__.config.musicVideoId;
+  if(!musicVideoId){btn.hidden=true;return;}
   var player, ready=false, gestured=false, audible=false, primed=false, suspended=false, tries=0;
   /* userPaused: الضيف أوقفها بزرّها — انظر شرح مسار الملف */
   var userPaused=false;
@@ -628,9 +630,9 @@
        ضغط زرّها. التسليح المبكر يجعل أوّل لمسة هي التي تُشغّلها. */
     rearmOnGesture(); };
   window.onYouTubeIframeAPIReady=function(){
-    player=new YT.Player('da3wa-yt',{videoId:"Hp8WTVqR_0U",
+    player=new YT.Player('da3wa-yt',{videoId:musicVideoId,
       // يُجهَّز صامتاً؛ القالب يستطيع إبقاءه متوقفاً حتى تنتهي مقدمة الفيديو
-      playerVars:{autoplay:0,mute:1,controls:0,disablekb:1,fs:0,loop:1,playlist:"Hp8WTVqR_0U",playsinline:1,modestbranding:1,rel:0,start:0},
+      playerVars:{autoplay:0,mute:1,controls:0,disablekb:1,fs:0,loop:1,playlist:musicVideoId,playsinline:1,modestbranding:1,rel:0,start:0},
       events:{onReady:function(){ ready=true; window.__da3waMusicReady=true;
         try{ player.mute(); if(suspended||isManual())player.pauseVideo(); else player.playVideo(); }catch(e){}
         if(isManual()){ if(primeRequested&&!goRequested)primeSilently(); if(goRequested){seekBeforeLoud=true;pump();} }

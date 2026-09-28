@@ -11,6 +11,7 @@ window.__INVITE__ = {
 
     date: "2026-12-18T19:00:00",
     timeZone: "Asia/Baghdad",
+    musicVideoId: "Hp8WTVqR_0U",
     dateText: "يوم الجمعة، ١٨ كانون الأول ٢٠٢٦",
     timeText: "الساعة السابعة مساءً",
     heroSub: "يتشرّفان بدعوتكم لمشاركتهما فرحة العمر",
