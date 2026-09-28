@@ -1,56 +1,26 @@
 /* ============================================================
    قالب doves — الإعدادات والتفاعل
-   عدّل بيانات العرس من WEDDING_CONFIG في الأسفل فقط.
+   عدّل بيانات العرس من wedding.config.js فقط.
    ============================================================ */
 
-const WEDDING_CONFIG = (typeof window!=="undefined" && window.__INVITE__ && window.__INVITE__.config) || {
-  groom: "نيكولا",
-  bride: "سهام",
-
-  // تاريخ ووقت العرس: YYYY-MM-DDTHH:MM:SS (نظام 24 ساعة) — لازم مستقبلي
-  date: "2026-12-18T19:00:00",
-  dateText: "يوم الجمعة، ١٨ كانون الأول ٢٠٢٦",
-  timeText: "الساعة السابعة مساءً",
-
-  verse: "اللّهُمَّ بارِكْ لهُما، وبارِكْ عليهِما، واجمَعْ بينهُما في خير",
-  invitationText: "بقلوبٍ مفعمةٍ بالفرح والسرور، نتشرّف بدعوتكم لمشاركتنا أجمل لحظات حياتنا في حفل زفافنا. حضوركم شرفٌ لنا وبهجةٌ تكتمل بها فرحتنا.",
-
-  groomParents: "نجل السيّد عبد الله حنّا و السيّدة مريم",
-  brideParents: "كريمة السيّد عبد العزيز و السيّدة ليلى",
-
-  venueName: "قاعة الحمراء للمناسبات",
-  venueAddr: "بغداد — شارع الكرادة",
-  mapUrl: "https://www.google.com/maps/search/?api=1&query=Baghdad",
-
-  program: [
-    { time: "٧:٠٠ مساءً", title: "استقبال الضيوف" },
-    { time: "٨:٠٠ مساءً", title: "مراسم الزفاف" },
-    { time: "٩:٠٠ مساءً", title: "العشاء" },
-    { time: "١٠:٣٠ مساءً", title: "السهرة والاحتفال" },
-  ],
-
-  notes: [
-    "يُرجى الحضور قبل الموعد بنصف ساعة",
-    "نتشرّف بحضوركم بأبهى حلّة",
-    "التصوير مسموح، شاركونا أجمل اللحظات",
-    "الدعوة تشمل حاملها والعائلة الكريمة",
-  ],
-
-  closingNote: "حضوركم يزيّن فرحتنا",
-  hashtag: "#نيكولا_وسهام",
-  contactLabel: "للاستفسار والتأكيد",
-  contactName: "أبو نيكولا",
-  contactPhone: "+9647700000000",
-  closingFamilies: "عائلة حنّا  &  عائلة عبد العزيز",
-
-  images: { hero: "assets/hero.jpg", venue: "assets/venue.jpg" },
-};
+const WEDDING_CONFIG = window.__INVITE__?.config;
+if (!WEDDING_CONFIG) {
+  throw new Error("Load wedding.config.js before the invitation template.");
+}
 
 const DOVE_SVG = '<div class="rbird"></div>';
 
 /* ---------------- تعبئة المحتوى ---------------- */
 function fillContent() {
   const c = WEDDING_CONFIG;
+  const assets = c.images || {};
+  const emblem = document.querySelector(".emblem__dove");
+  if (emblem && assets.emblem) emblem.style.backgroundImage = `url("${assets.emblem}")`;
+  if (assets.doveSprite) {
+    document.querySelectorAll(".rbird").forEach((bird) => {
+      bird.style.backgroundImage = `url("${assets.doveSprite}")`;
+    });
+  }
   setText("groomName", c.groom);
   setText("brideName", c.bride);
   setText("heroDate", [c.dateText, c.timeText].filter(Boolean).join(" • "));
@@ -91,22 +61,65 @@ function fillContent() {
   buildTimeline(c.program);
   buildNotes(c.notes);
   buildContact(c);
+  buildGallery(assets.gallery);
   document.title = `دعوة زفاف ${[c.groom, c.bride].filter(Boolean).join(" & ")}`;
 }
+
+function buildGallery(images) {
+  const gallery = document.getElementById("memory-gallery");
+  if (!gallery || !Array.isArray(images)) return;
+  gallery.replaceChildren();
+  gallery.className = `mem-grid ${images.length <= 4 ? `n${images.length}` : "many"}`;
+  images.forEach((src, index) => {
+    const figure = document.createElement("figure");
+    figure.className = "mem-cell";
+    const image = document.createElement("img");
+    image.src = src;
+    image.alt = `ذكرى ${index + 1}`;
+    image.loading = "lazy";
+    image.decoding = "async";
+    figure.append(image);
+    gallery.append(figure);
+  });
+}
 function setText(id, v) { const el = document.getElementById(id); if (el && v != null) el.textContent = v; }
-function firstLetter(n) { return (n || "").trim().charAt(0) || ""; }
 
 function buildTimeline(items) {
   const ul = document.getElementById("timeline");
-  if (!ul || !Array.isArray(items)) return; ul.innerHTML = "";
-  items.forEach((it) => { const li = document.createElement("li"); li.className = "timeline__item";
-    li.innerHTML = `<span class="timeline__dot" aria-hidden="true"></span><span class="timeline__time">${it.time}</span><span class="timeline__title">${it.title}</span>`; ul.appendChild(li); });
+  if (!ul || !Array.isArray(items)) return;
+  ul.replaceChildren();
+  items.forEach((item) => {
+    const li = document.createElement("li");
+    li.className = "timeline__item";
+    const dot = document.createElement("span");
+    dot.className = "timeline__dot";
+    dot.setAttribute("aria-hidden", "true");
+    const time = document.createElement("span");
+    time.className = "timeline__time";
+    time.textContent = item.time || "";
+    const title = document.createElement("span");
+    title.className = "timeline__title";
+    title.textContent = item.title || "";
+    li.append(dot, time, title);
+    ul.append(li);
+  });
 }
 function buildNotes(items) {
   const ul = document.getElementById("notesList");
-  if (!ul || !Array.isArray(items)) return; ul.innerHTML = "";
-  items.forEach((t) => { const li = document.createElement("li"); li.className = "notes__item";
-    li.innerHTML = `<span class="notes__mark" aria-hidden="true">&#10047;</span><span>${t}</span>`; ul.appendChild(li); });
+  if (!ul || !Array.isArray(items)) return;
+  ul.replaceChildren();
+  items.forEach((text) => {
+    const li = document.createElement("li");
+    li.className = "notes__item";
+    const mark = document.createElement("span");
+    mark.className = "notes__mark";
+    mark.setAttribute("aria-hidden", "true");
+    mark.textContent = "❋";
+    const content = document.createElement("span");
+    content.textContent = text;
+    li.append(mark, content);
+    ul.append(li);
+  });
   /* قسم بلا تنويهات لا يُترك بعنوانه — والملاحظة البارزة المحقونة تُنقل خارجه قبل إخفائه */
   if (!ul.children.length) {
     const sec = ul.closest(".notes");
@@ -122,7 +135,12 @@ function buildContact(c) {
   const label = document.querySelector(".contact__label");
   if (label && c.contactLabel) label.textContent = c.contactLabel;
   if (!link) return;
-  if (c.contactPhone) { link.href = `https://wa.me/${c.contactPhone.replace(/[^0-9]/g, "")}`; link.target = "_blank"; link.rel = "noopener"; link.textContent = c.contactName || c.contactPhone; }
+  if (c.whatsappUrl) {
+    link.href = c.whatsappUrl;
+    link.target = "_blank";
+    link.rel = "noopener";
+    link.textContent = c.contactName || "واتساب";
+  }
   else { document.getElementById("contactBox").style.display = "none"; }
 }
 

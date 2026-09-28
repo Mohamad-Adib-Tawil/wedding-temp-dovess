@@ -58,7 +58,11 @@
         error.setAttribute("role", "status");
       }
 
-      const whatsapp = config.whatsappUrl || "https://wa.me/+963992688759";
+      const whatsapp = config.whatsappUrl;
+      if (!whatsapp) {
+        if (error) error.textContent = "رابط واتساب غير مضبوط في ملف إعدادات الدعوة.";
+        return;
+      }
       const separator = whatsapp.includes("?") ? "&" : "?";
       window.open(`${whatsapp}${separator}text=${encodeURIComponent(body)}`, "_blank", "noopener,noreferrer");
     });
@@ -92,6 +96,8 @@
     const url = config.whatsappUrl;
     if (!url) return;
 
+    const names = document.getElementById("order-names");
+    if (names) names.textContent = [config.groom, config.bride].filter(Boolean).join(" & ");
     document.querySelectorAll("#da3wa-democta a").forEach((link) => {
       link.href = url;
     });

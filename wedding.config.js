@@ -44,7 +44,6 @@ window.__INVITE__ = {
     hashtag: "#محمد_أديب_ورزان",
     contactLabel: "للاستفسار والتأكيد",
     contactName: "+963 992 688 759",
-    contactPhone: "+963992688759",
     whatsappUrl: "https://wa.me/+963992688759",
     siteUrl: "https://mohamad-adib-tawil.github.io/wedding-temp-dovess/",
 
